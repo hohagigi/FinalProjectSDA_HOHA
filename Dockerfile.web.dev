@@ -1,0 +1,17 @@
+FROM php:8.2-apache
+
+# Activăm module utile (la nevoie poți adăuga și altele)
+RUN docker-php-ext-install mysqli pdo pdo_mysql
+
+# Copiem codul aplicației în container
+# codul aplicatiei e in web_app ca director fizic , relativ la calea fisierului de configuratie
+COPY web_app/ /var/www/html/
+
+COPY apache.conf/000-default.conf /etc/apache2/sites-available/000-default.conf
+# (opțional) schimbăm DocumentRoot, dacă nu e index.php
+#RUN sed -i 's#/var/www/html#/var/www/html/public#g' /etc/apache2/sites-available/000-default.conf
+
+# Activăm mod_rewrite dacă ai URL-uri frumoase
+RUN a2enmod rewrite
+
+EXPOSE 80

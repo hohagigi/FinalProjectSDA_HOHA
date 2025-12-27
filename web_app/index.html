@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Proiect final AI Remote RO 04</title>
+<style>
+    body, html {
+        margin: 0;
+        height: 100%;
+        width: 100%;
+    }
+    .container {
+        display: flex;
+        flex-direction: row;
+        height: 100%;
+    }
+    iframe {
+        border: 1px;
+        height: 100%;
+    }
+    .left {
+        flex: 0 0 7%;
+        overflow: hidden;
+    }
+    .right {
+        flex: 1;
+        overflow: hidden;
+        
+    }
+
+</style>
+</head>
+<body>
+<div class="container">
+    <iframe class="left" src="stanga.html"></iframe>
+    <iframe class="right" src="dreapta.html?v=1.0" name="dreaptaFrame"></iframe>
+</div>
+</body>
+</html>

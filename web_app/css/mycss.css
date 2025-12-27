@@ -1,0 +1,80 @@
+
+.tdClass{
+  border: 1px solid #999;
+  padding: 1px;
+  text-align: center;
+  font-size: 12px;
+  font-family:Verdana, Geneva, Tahoma, sans-serif;
+  background: #e6e6e6a9;
+}
+
+.tdClass:hover
+{
+  background: #9292f5;
+  border: 1px solid #999;
+  padding: 1px;
+  text-align: center;
+  font-size: 12px;
+  font-family:Verdana, Geneva, Tahoma, sans-serif;
+}
+
+.tdClassSold{
+  border: 1px solid #999;
+  padding: 1px;
+  text-align: center;
+  font-size: 12px;
+  font-family:Verdana, Geneva, Tahoma, sans-serif;
+  background: #8bc5ffa9;
+}
+
+.tdClass_1{
+  border: 1px solid #999;
+  padding: 1px;
+  text-align: center;
+  font-size: 12px;
+  font-family:Verdana, Geneva, Tahoma, sans-serif;
+  background: #ffffffa9;
+}
+
+.tdClass0{
+  border: 1px solid #999;
+  padding: 1px;
+  text-align: center;
+  font-size: 12px;
+  font-family:Verdana, Geneva, Tahoma, sans-serif;
+  background: #6af96fa9;
+}
+
+.tdClass1{
+  border: 1px solid #999;
+  padding: 1px;
+  text-align: center;
+  font-size: 12px;
+  font-family:Verdana, Geneva, Tahoma, sans-serif;
+  background: #f2fa7fa9;
+}
+
+.tdClass2{
+  border: 1px solid #999;
+  padding: 1px;
+  text-align: center;
+  font-size: 12px;
+  font-family:Verdana, Geneva, Tahoma, sans-serif;
+  background: #fd8282a9;
+}
+
+.trClass:hover{
+  border: 1px solid #999;
+  padding: 1px;
+  text-align: center;
+  background: #948ff8a9;
+}
+
+.tdClassSelect{
+  border: 1px solid #999;
+  padding: 1px;
+  text-align: center;
+  font-size: 12px;
+  font-family:Verdana, Geneva, Tahoma, sans-serif;
+  background: #f2fa7fa9;
+}

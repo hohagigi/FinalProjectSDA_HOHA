@@ -1,0 +1,165 @@
+
+
+Predictia rezultatului final in fotbal bazata pe algoritmi de inteligenta artificiala
+ si tehnici avansate de manipulare a datelor
+
+
+
+    - un numar de x campionate din y tari
+
+
+18.08
+Calculul procentajului de reusita trebuie facut on the fly si nu implica baze de date stocate ci doar temporare
+
+- trebuie calculat procentajul pe modelul all
+- trebuie calculat procentajul pe fiecare divizie in parte
+
+exemplu
+spania la liga pe 1 iesit =>  procentaj pe 1
+spania la liga pe x iesit =>  procentaj pe x
+spania la liga pe 2 iesit =>  procentaj pe 2
+=======================================================
+TO DO 
+- adaugat posibilitatea de selectie a datelor de inceput si sfarsit pentru statistica
+
+
+Pașii de integrare cu Django + Apache (mod_wsgi)
+1. Creezi un proiect Django
+
+În terminal:
+
+pip install django
+django-admin startproject soccerapp
+cd soccerapp
+python manage.py startapp predictions
+
+
+Acum ai structura:
+
+soccerapp/
+    manage.py
+    soccerapp/
+        settings.py
+        urls.py
+        wsgi.py
+    predictions/
+        views.py
+
+2. Scrii un view care rulează scriptul tău
+
+Editezi predictions/views.py:
+
+from django.http import HttpResponse
+import joblib
+import mysql.connector
+from my_classes import MyDataFrame
+import numpy as np
+
+def run_model(request):
+    # conectare DB
+    mydb = mysql.connector.connect(
+        user='ai', password='sda',
+        host='127.0.0.1',
+        database='soccer_analysis',
+        auth_plugin='mysql_native_password'
+    )
+    mycursor = mydb.cursor()
+
+    # dataframe
+    mydf = MyDataFrame(
+        start_train_date='2013-01-01',
+        end_train_date='2024-08-01',
+        start_test_date='2024-08-01',
+        end_test_date='2025-04-21'
+    )
+
+    # încarc modelul
+    model = joblib.load("models/all_CatBoosts.pkl")
+    preds = model.predict(mydf.GetXTest())
+
+    updates = []
+    for p, (_, row) in zip(preds, mydf.GetXTestFull().iterrows()):
+        val = p[0] if isinstance(p, (list, np.ndarray)) else p
+        updates.append((float(val), int(row['id'])))
+
+    query = "UPDATE games SET predXGB=%s WHERE id=%s"
+    mycursor.executemany(query, updates)
+    mydb.commit()
+
+    return HttpResponse(f"Am actualizat {len(updates)} rânduri în baza de date.")
+
+3. Adaugi ruta în urls.py
+
+În soccerapp/urls.py:
+
+from django.contrib import admin
+from django.urls import path
+from predictions.views import run_model
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('run_model/', run_model),   # http://localhost/run_model/
+]
+
+4. Test local cu Django
+
+Rulezi:
+
+python manage.py runserver
+
+
+Și accesezi:
+👉 http://127.0.0.1:8000/run_model/
+
+Dacă vezi mesajul „Am actualizat X rânduri”, e ok 👍.
+
+5. Integrarea în Apache
+
+Instalezi:
+
+sudo apt-get install libapache2-mod-wsgi-py3
+
+
+Creezi un fișier WSGI pentru Apache: (/var/www/soccerapp/soccerapp.wsgi)
+
+import os, sys
+sys.path.append('/var/www/soccerapp')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "soccerapp.settings")
+
+from django.core.wsgi import get_wsgi_application
+application = get_wsgi_application()
+
+
+Configuri Apache (/etc/apache2/sites-available/soccerapp.conf):
+
+<VirtualHost *:80>
+    ServerName localhost
+    DocumentRoot /var/www/soccerapp
+
+    WSGIDaemonProcess soccerapp python-path=/var/www/soccerapp
+    WSGIScriptAlias / /var/www/soccerapp/soccerapp.wsgi
+
+    <Directory /var/www/soccerapp>
+        <Files wsgi.py>
+            Require all granted
+        </Files>
+    </Directory>
+</VirtualHost>
+
+
+Activezi site-ul:
+
+sudo a2ensite soccerapp.conf
+sudo systemctl restart apache2
+
+
+👉 Acum poți accesa direct:
+http://localhost/run_model/
+
+💡 Avantaj cu Django:
+
+Poți adăuga autentificare (să nu poată oricine să apeleze modelul).
+
+Poți expune și alte API-uri (ex. /predict_next_game/).
+
+Ai admin panel pentru a gestiona datele din DB.

@@ -1,0 +1,14 @@
+fastapi
+uvicorn[standard]
+pymysql
+mlflow
+pandas
+numpy
+scikit-learn
+joblib
+mysql-connector-python
+catboost
+keras
+pandas
+tensorflow
+seaborn

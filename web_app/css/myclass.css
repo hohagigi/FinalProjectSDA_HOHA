@@ -1,0 +1,44 @@
+.legatura {
+  text-align: center;
+  font-size: 14px;
+  font-family:Verdana, Geneva, Tahoma, sans-serif;
+  color:#720015;
+  text-decoration: none;
+}
+
+
+.randTabel {
+  background: #ff9b9b;
+  border: 1px solid #333;
+}
+
+.randTabel:hover {
+  background: #ddd;
+}
+
+.randTabelList {
+  border: 1px solid #999;
+  padding: 2px;
+  text-align: center;
+  font-size: 14px;
+  font-family:Verdana, Geneva, Tahoma, sans-serif;
+  background: #d9d4efa9;
+}
+
+.randTabelList:hover {
+  background: #ddd;
+}
+
+.celulaTabel {
+  border: 1px solid #999;
+  padding: 2px;
+  text-align: center;
+  font-size: 14px;
+  font-family:Verdana, Geneva, Tahoma, sans-serif;
+  background: #d9d4efa9;
+}
+
+.celulaTabel:hover {
+  background: #66aaff;
+  color: white;
+}

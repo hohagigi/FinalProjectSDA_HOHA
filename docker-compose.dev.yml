@@ -1,0 +1,90 @@
+### warning : attribute version is obsolete
+###version: "3.9"
+
+services:
+  db:
+    ### nu are hohagigi in fata deoarece e preluata direct din hub si mapata pe directorul meu din docker 
+    ### e o baza de date, deci nu un tabel !! o umplem dupa 
+    image: mysql:8.0    
+    container_name: my_bet_db
+    environment:
+      MYSQL_ROOT_PASSWORD: depechemode
+      MYSQL_DATABASE: soccer_analysis
+      MYSQL_USER: sda
+      MYSQL_PASSWORD: sda
+    volumes:
+      - my_db_data:/var/lib/mysql ### /var/lib/mysql se refera la direcorul din container
+    ports:
+      - "3307:3306"
+    restart: unless-stopped
+    networks:
+      - my_bet_app_net
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web.dev
+    container_name: dev_web
+    volumes:
+      - ./web_app:/var/www/html     # << CODUL PHP MONTAT LIVE
+    environment:
+      DB_HOST: db
+      DB_NAME: appdb
+      DB_USER: appuser
+      DB_PASS: apppass
+      API_URL: http://api:8000
+    depends_on:
+      - db
+      - api
+    ports:
+      - "81:80"                   # DEV rulează pe 8080
+    networks:
+      - my_bet_app_net    
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: dev_api
+    working_dir: /app
+    volumes:
+      - ./api_app:/app              # << cod FastAPI live, ca la web_app
+    environment:
+      DB_HOST: db
+      DB_NAME: soccer_analysis      # vezi să fie la fel ca în serviciul db
+      DB_USER: sda
+      DB_PASS: sda
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+    depends_on:
+      - db
+      - mlflow
+    ports:
+      - "8000:8000"
+    command: uvicorn fast_api:app --reload --host 0.0.0.0 --port 8000
+    restart: unless-stopped
+    networks:
+      - my_bet_app_net
+
+  mlflow:
+    build:
+      context: .
+      dockerfile: Dockerfile.mlflow
+    container_name: dev_mlflow
+    working_dir: /mlflow
+    volumes:
+      - ./mlflow_data:/mlflow
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+    networks:
+      - my_bet_app_net
+
+volumes:
+  my_db_data:
+
+networks:
+  my_bet_app_net:
+    driver: bridge
+
+
+## 22.11.2025 1535 secunde!!

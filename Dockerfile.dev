@@ -1,0 +1,9 @@
+FROM php:8.2-apache
+
+RUN docker-php-ext-install mysqli pdo pdo_mysql
+
+# activăm mod_rewrite (optional)
+RUN a2enmod rewrite
+
+# setăm document root dacă vrei altul
+# RUN sed -i 's#/var/www/html#/var/www/html#g' /etc/apache2/sites-available/000-default.conf'

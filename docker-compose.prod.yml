@@ -1,0 +1,81 @@
+services:
+  db:
+    # imagine oficială MySQL din Docker Hub
+    image: mysql:8.0    
+    container_name: my_bet_db
+    environment:
+      MYSQL_ROOT_PASSWORD: depechemode
+      MYSQL_DATABASE: soccer_analysis
+      MYSQL_USER: sda
+      MYSQL_PASSWORD: sda
+    volumes:
+      - my_db_data:/var/lib/mysql        # directorul din container
+    ports:
+      - "3307:3306"                      # acces la DB din host (opțional)
+    restart: unless-stopped
+    networks:
+      - my_bet_app_net
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web.dev
+    image: hohagigi/web_app:prod     # tag pentru Docker Hub (opțional)
+    container_name: prod_web
+    environment:
+      DB_HOST: db
+      DB_NAME: soccer_analysis           # aliniat cu MYSQL_DATABASE
+      DB_USER: sda                        # aliniat cu MYSQL_USER
+      DB_PASS: sda                       # aliniat cu MYSQL_PASSWORD
+      API_URL: http://api:8000
+    depends_on:
+      - db
+      - api
+    ports:
+      - "81:80"                          # în PROD poți pune "80:80" pe server
+    restart: unless-stopped
+    networks:
+      - my_bet_app_net
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    image: hohagigi/api_app:prod         # imagine de PROD pentru FastAPI
+    container_name: prod_api
+    environment:
+      DB_HOST: db
+      DB_NAME: soccer_analysis           # aceeași DB ca la web
+      DB_USER: sda
+      DB_PASS: sda
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+    depends_on:
+      - db
+      - mlflow
+    ports:
+      - "8000:8000"                      # acces la FastAPI direct (sau doar prin Nginx)
+    restart: unless-stopped
+    networks:
+      - my_bet_app_net
+
+  mlflow:
+    build:
+      context: .
+      #dockerfile: Dockerfile.mlflow     # dacă numele este exact ăsta, decomentează linia
+      dockerfile: Dockerfile.mlflow
+    container_name: prod_mlflow
+    working_dir: /mlflow
+    volumes:
+      - ./mlflow_data:/mlflow
+    ports:
+      - "5000:5000"                      # acces UI MLflow din host
+    restart: unless-stopped
+    networks:
+      - my_bet_app_net
+
+volumes:
+  my_db_data:
+
+networks:
+  my_bet_app_net:
+    driver: bridge
