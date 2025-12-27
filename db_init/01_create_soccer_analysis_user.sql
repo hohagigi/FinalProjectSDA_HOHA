@@ -1,0 +1,7 @@
+CREATE DATABASE IF NOT EXISTS soccer_analysis;
+
+CREATE USER IF NOT EXISTS 'sda'@'%' IDENTIFIED BY 'sda';
+
+GRANT ALL PRIVILEGES ON soccer_analysis.* TO 'sda'@'%';
+
+FLUSH PRIVILEGES;

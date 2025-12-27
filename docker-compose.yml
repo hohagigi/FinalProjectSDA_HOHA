@@ -1,0 +1,64 @@
+version: "3.9"
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: dev-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: depechemode
+      # nu e obligatoriu să pui MYSQL_DATABASE/USER/PASSWORD
+      # pentru că le setează scriptul SQL din db_init
+    volumes:
+      - mysql_data:/var/lib/mysql
+      # folder local cu scripturile de inițializare (inclusiv 01_create_soccer_analysis_user.sql)
+      - ./db_init:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "3307:3306"
+
+  mlflow:
+    image: hohagigi/mlflow:latest
+    container_name: dev-mlflow
+    restart: unless-stopped
+    depends_on:
+      - mysql
+    environment:
+      # backend-ul MLflow stă în baza ta MySQL
+      MLFLOW_BACKEND_STORE_URI: mysql+pymysql://sda:sda@mysql:3306/soccer_analysis
+      MLFLOW_DEFAULT_ARTIFACT_ROOT: /mlruns
+    volumes:
+      - mlflow_data:/mlruns
+    ports:
+      - "5000:5000"
+
+  api:
+    image: hohagigi/api-app:latest
+    container_name: dev-api
+    restart: unless-stopped
+    depends_on:
+      - mysql
+      - mlflow
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: soccer_analysis
+      DB_USER: sda
+      DB_PASSWORD: sda
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+    ports:
+      - "8000:8000"
+
+  web:
+    image: hohagigi/web-app:latest
+    container_name: dev-web
+    restart: unless-stopped
+    depends_on:
+      - api
+    environment:
+      API_BASE_URL: http://api:8000
+    ports:
+      - "8080:80"
+
+volumes:
+  mysql_data:
+  mlflow_data:
