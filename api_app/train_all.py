@@ -19,9 +19,9 @@ from sklearn.utils.class_weight import compute_class_weight
 from sklearn.preprocessing import MinMaxScaler, StandardScaler, RobustScaler
     
 mydf = MyDataFrame(start_train_date='2021-08-01',
-                   end_train_date='2025-09-01',
-                   start_test_date='2025-09-01',
-                   end_test_date='2025-12-31',
+                   end_train_date='2025-10-01',
+                   start_test_date='2025-10-01',
+                   end_test_date='2026-01-31',
                    )
 
 def TrainCatBoosts(mydf):
